@@ -9,7 +9,7 @@
   }
 
   // Carga y renderiza el catálogo desde products.json en la raíz
-  fetch("products.json")
+  fetch("assets/data/products.json")
     .then((res) => {
       if (!res.ok) throw new Error("No se pudo cargar products.json");
       return res.json();
