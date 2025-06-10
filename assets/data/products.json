@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "Camisa",
+    "price": 200,
+    "image": "/assets/img/camisa.jpg",
+    "description": "Camisa de algodón 100%"
+  },
+  {
+    "id": 2,
+    "name": "Gorra",
+    "price": 150,
+    "image": "/assets/img/gorra.jpg",
+    "description": "Gorra unisex"
+  }
+]
