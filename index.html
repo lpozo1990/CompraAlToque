@@ -2,23 +2,148 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mi Tienda</title>
-    <script defer src="cart.js"></script>
-    <script defer src="checkout.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TuTiendaWA</title>
+
+    <!-- Tailwind CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@^3.0/dist/tailwind.min.css"
       rel="stylesheet"
     />
+
+    <!-- Swiper.js (Carousel) -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@9/swiper-bundle.min.css"
+    />
+    <script
+      defer
+      src="https://unpkg.com/swiper@9/swiper-bundle.min.js"
+    ></script>
+
+    <!-- Carrito & Checkout -->
+    <script defer src="cart.js"></script>
+    <script defer src="checkout.js"></script>
   </head>
-  <body class="p-6">
-    <h1 class="text-2xl mb-4">Catálogo de Productos</h1>
-    <div id="product-list" class="grid grid-cols-2 gap-6"></div>
-    <button
-      id="checkout-btn"
-      class="mt-6 px-4 py-2 bg-green-500 text-white rounded"
-    >
-      Finalizar en WhatsApp
-    </button>
+  <body class="bg-gray-50 text-gray-800">
+    <!-- HEADER -->
+    <header class="bg-white shadow sticky top-0 z-50">
+      <div
+        class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16"
+      >
+        <!-- Logo -->
+        <a href="/" class="text-2xl font-bold text-orange-600">TuTiendaWA</a>
+
+        <!-- Buscador (oculto en móvil) -->
+        <div class="hidden md:flex flex-1 mx-6">
+          <input
+            type="search"
+            placeholder="Buscar productos..."
+            class="w-full border rounded-l px-3 py-2 focus:outline-none"
+          />
+          <button class="bg-orange-500 text-white px-4 rounded-r">
+            Buscar
+          </button>
+        </div>
+
+        <!-- Carrito + Menú móvil -->
+        <div class="flex items-center space-x-4">
+          <a href="#" class="relative text-xl">
+            🛒
+            <span
+              id="cart-count"
+              class="absolute -top-1 -right-2 bg-red-500 text-white rounded-full text-xs px-1"
+              >0</span
+            >
+          </a>
+          <button id="mobile-menu-btn" class="md:hidden text-2xl">☰</button>
+        </div>
+      </div>
+
+      <!-- Menú móvil -->
+      <nav id="mobile-menu" class="hidden bg-gray-100">
+        <a href="#" class="block px-4 py-2 hover:bg-gray-200">Categoría 1</a>
+        <a href="#" class="block px-4 py-2 hover:bg-gray-200">Categoría 2</a>
+        <a href="#" class="block px-4 py-2 hover:bg-gray-200">Categoría 3</a>
+      </nav>
+    </header>
+
+    <!-- HERO CAROUSEL -->
+    <section class="mt-4">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="swiper-container rounded-lg overflow-hidden">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <img
+                src="/assets/img/banner1.jpg"
+                class="w-full"
+                alt="Banner 1"
+              />
+            </div>
+            <div class="swiper-slide">
+              <img
+                src="/assets/img/banner2.jpg"
+                class="w-full"
+                alt="Banner 2"
+              />
+            </div>
+            <div class="swiper-slide">
+              <img
+                src="/assets/img/banner3.jpg"
+                class="w-full"
+                alt="Banner 3"
+              />
+            </div>
+          </div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATÁLOGO -->
+    <main class="max-w-6xl mx-auto px-4 mt-8">
+      <h1 class="text-2xl font-bold mb-4">Catálogo de Productos</h1>
+      <div
+        id="product-list"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
+        <!-- Se llena dinámicamente con cart.js -->
+      </div>
+      <button
+        id="checkout-btn"
+        class="mt-8 w-full md:w-auto px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition"
+      >
+        Finalizar en WhatsApp
+      </button>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-100 mt-12 py-6">
+      <div class="max-w-6xl mx-auto px-4 text-center text-sm text-gray-600">
+        © 2025 TuTiendaWA · Hecho con ❤️ usando GitHub Pages
+      </div>
+    </footer>
+
+    <!-- Mobile menu toggle & Swiper init -->
+    <script>
+      // Toggle menú móvil
+      document.getElementById("mobile-menu-btn").onclick = () => {
+        document.getElementById("mobile-menu").classList.toggle("hidden");
+      };
+      // Inicializar Swiper
+      document.addEventListener("DOMContentLoaded", () => {
+        new Swiper(".swiper-container", {
+          loop: true,
+          autoplay: { delay: 4000 },
+          pagination: { el: ".swiper-pagination", clickable: true },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+        });
+      });
+    </script>
   </body>
 </html>
