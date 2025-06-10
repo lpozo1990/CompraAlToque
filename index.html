@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TuTiendaWA</title>
 
-    <!-- Tailwind CSS -->
-    <link href="tailwind.min.css" rel="stylesheet" />
+    <!-- Tailwind CSS desde CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@^3.0/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
 
-    <!-- Swiper.js (Carousel) -->
-    <link rel="stylesheet" href="swiper-bundle.min.css" />
+    <!-- Swiper.js CSS desde CDN -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@9/swiper-bundle.min.css"
+    />
   </head>
   <body class="bg-gray-50 text-gray-800">
     <!-- HEADER -->
@@ -17,7 +23,10 @@
       <div
         class="max-w-6xl mx-auto px-4 flex items-center justify-between h-16"
       >
-        <a href="/" class="text-2xl font-bold text-orange-600">TuTiendaWA</a>
+        <!-- Logo -->
+        <a href="#" class="text-2xl font-bold text-orange-600">TuTiendaWA</a>
+
+        <!-- Buscador (oculto en móvil) -->
         <div class="hidden md:flex flex-1 mx-6">
           <input
             type="search"
@@ -28,6 +37,8 @@
             Buscar
           </button>
         </div>
+
+        <!-- Carrito + menú móvil -->
         <div class="flex items-center space-x-4">
           <a href="#" class="relative text-xl">
             🛒
@@ -76,6 +87,7 @@
         id="product-list"
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
       ></div>
+
       <button
         id="checkout-btn"
         class="mt-8 w-full md:w-auto px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition"
@@ -91,8 +103,9 @@
       </div>
     </footer>
 
-    <!-- Scripts al final para asegurar que el DOM ya existe -->
-    <script src="swiper-bundle.min.js"></script>
+    <!-- Swiper.js JS desde CDN -->
+    <script src="https://unpkg.com/swiper@9/swiper-bundle.min.js"></script>
+    <!-- Tus scripts locales -->
     <script src="cart.js"></script>
     <script src="checkout.js"></script>
     <script>
