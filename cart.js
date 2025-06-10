@@ -9,7 +9,7 @@
   }
 
   // Carga y renderiza productos
-  fetch("/assets/data/products.json")
+  fetch("assets/data/products.json") // ← ruta relativa, sin "/" inicial
     .then((res) => res.json())
     .then((products) => {
       const container = document.getElementById("product-list");
@@ -17,7 +17,9 @@
         .map(
           (p) => `
           <div class="border bg-white p-4 flex flex-col hover:shadow-lg transition">
-            <img src="${p.image}" alt="${p.name}" class="h-40 object-cover mb-2 rounded"/>
+            <img src="assets/img/${p.image.split("/").pop()}" alt="${
+            p.name
+          }" class="h-40 object-cover mb-2 rounded"/>
             <h3 class="font-semibold text-lg mb-1">${p.name}</h3>
             <p class="text-orange-600 font-bold mb-2">$${p.price}</p>
             <button
