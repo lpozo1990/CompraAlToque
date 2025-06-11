@@ -66,6 +66,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Manejo del formulario de checkout
   const checkoutForm = document.getElementById("checkout-form");
   if (checkoutForm) {
+    console.log("Formulario de checkout encontrado:", checkoutForm);
+    
     // Mostrar/ocultar dirección según método de entrega
     const deliveryRadios = document.querySelectorAll('input[name="delivery"]');
     const addressContainer = document.getElementById("address-container");
@@ -86,9 +88,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Manejar envío del formulario
     checkoutForm.addEventListener("submit", function (e) {
       e.preventDefault();
+      console.log("Formulario enviado");
 
       // Validar que el carrito no esté vacío
-      if (!window.cart.length) {
+      if (!window.cart || window.cart.length === 0) {
         alert("Tu carrito está vacío. Agrega productos antes de continuar.");
         return;
       }
@@ -97,10 +100,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = {
         name: document.getElementById("name").value,
         phone: document.getElementById("phone").value,
-        deliveryMethod: document.querySelector('input[name="delivery"]:checked')
-          .value,
+        deliveryMethod: document.querySelector('input[name="delivery"]:checked')?.value || "pickup",
         notes: document.getElementById("notes").value,
       };
+      
+      console.log("Datos del formulario:", formData);
 
       // Agregar dirección si es envío a domicilio
       if (formData.deliveryMethod === "delivery") {
@@ -116,43 +120,51 @@ document.addEventListener("DOMContentLoaded", function () {
         })
       );
 
-      // Preparar texto para WhatsApp
-      const lines = window.cart.map(
-        (i) => `- ${i.name} ×${i.qty} ($${i.price * i.qty})`
-      );
-      const subtotal = window.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-      const shipping = formData.deliveryMethod === "delivery" ? 50 : 0;
-      const total = subtotal + shipping;
+      try {
+        // Preparar texto para WhatsApp
+        const lines = window.cart.map(
+          (i) => `- ${i.name} ×${i.qty} ($${i.price * i.qty})`
+        );
+        const subtotal = window.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const shipping = formData.deliveryMethod === "delivery" ? 50 : 0;
+        const total = subtotal + shipping;
 
-      let text = `Hola, quiero realizar este pedido:\n\n`;
-      text += `${lines.join("\n")}\n\n`;
-      text += `Subtotal: $${subtotal}\n`;
-      if (shipping > 0) {
-        text += `Envío: $${shipping}\n`;
+        let text = `Hola, quiero realizar este pedido:\n\n`;
+        text += `${lines.join("\n")}\n\n`;
+        text += `Subtotal: $${subtotal}\n`;
+        if (shipping > 0) {
+          text += `Envío: $${shipping}\n`;
+        }
+        text += `Total: $${total}\n\n`;
+        text += `Datos del cliente:\n`;
+        text += `Nombre: ${formData.name}\n`;
+        text += `Teléfono: ${formData.phone}\n`;
+        text += `Método de entrega: ${
+          formData.deliveryMethod === "pickup"
+            ? "Recoger en tienda"
+            : "Envío a domicilio"
+        }\n`;
+
+        if (formData.address) {
+          text += `Dirección: ${formData.address}\n`;
+        }
+
+        if (formData.notes) {
+          text += `\nNotas adicionales:\n${formData.notes}\n`;
+        }
+
+        console.log("Mensaje preparado:", text);
+
+        // Enviar a WhatsApp (número actualizado)
+        const whatsappNumber = "58766375"; // Número actualizado
+        const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+        console.log("Redirigiendo a:", whatsappURL);
+        
+        window.location.href = whatsappURL;
+      } catch (error) {
+        console.error("Error al procesar el formulario:", error);
+        alert("Hubo un error al procesar tu pedido. Por favor, intenta de nuevo.");
       }
-      text += `Total: $${total}\n\n`;
-      text += `Datos del cliente:\n`;
-      text += `Nombre: ${formData.name}\n`;
-      text += `Teléfono: ${formData.phone}\n`;
-      text += `Método de entrega: ${
-        formData.deliveryMethod === "pickup"
-          ? "Recoger en tienda"
-          : "Envío a domicilio"
-      }\n`;
-
-      if (formData.address) {
-        text += `Dirección: ${formData.address}\n`;
-      }
-
-      if (formData.notes) {
-        text += `\nNotas adicionales:\n${formData.notes}\n`;
-      }
-
-      // Enviar a WhatsApp (número actualizado)
-      const whatsappNumber = "58766375"; // Número actualizado
-      window.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-        text
-      )}`;
     });
 
     // Prellenar datos del cliente si existen en localStorage
