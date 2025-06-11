@@ -3,6 +3,44 @@ document.addEventListener("DOMContentLoaded", function () {
   // Recuperar carrito del almacenamiento local
   window.cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
+  // Sistema de notificaciones elegantes para checkout
+  function showNotification(title, message, duration = 3000) {
+    const container = document.getElementById("notifications-container");
+    if (!container) return;
+
+    const notification = document.createElement("div");
+    notification.className = "notification";
+
+    const notificationHTML = `
+      <div class="notification-title">${title}</div>
+      <div class="notification-message">${message}</div>
+      <div class="notification-progress"></div>
+    `;
+
+    notification.innerHTML = notificationHTML;
+    container.appendChild(notification);
+
+    // Animar barra de progreso
+    const progress = notification.querySelector(".notification-progress");
+
+    // Mostrar la notificación después de un pequeño delay
+    setTimeout(() => {
+      notification.classList.add("show");
+
+      // Animar la barra de progreso
+      progress.style.transition = `transform ${duration / 1000}s linear`;
+      progress.style.transform = "scaleX(0)";
+    }, 10);
+
+    // Eliminar la notificación después del tiempo especificado
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => {
+        notification.remove();
+      }, 300); // Esperar a que termine la transición
+    }, duration);
+  }
+
   // Actualizar contador de items en carrito
   function updateCartCount() {
     const countElem = document.getElementById("cart-count");
@@ -21,7 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
         !window.location.href.includes("checkout.html")
       ) {
         e.preventDefault();
-        alert("Tu carrito está vacío. Agrega productos antes de continuar.");
+        showNotification(
+          "Carrito vacío",
+          "Tu carrito está vacío. Agrega productos antes de continuar."
+        );
       }
     });
   }
@@ -31,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (clearCartButton) {
     clearCartButton.addEventListener("click", function () {
       if (window.cart.length === 0) {
-        alert("Tu carrito ya está vacío.");
+        showNotification("Carrito vacío", "Tu carrito ya está vacío.");
         return;
       }
 
@@ -41,7 +82,10 @@ document.addEventListener("DOMContentLoaded", function () {
         renderCartItems();
         updateCartSummary();
         updateCartCount();
-        alert("Tu carrito ha sido vaciado.");
+        showNotification(
+          "Carrito vaciado",
+          "Tu carrito ha sido vaciado correctamente."
+        );
       }
     });
   }
@@ -57,17 +101,112 @@ document.addEventListener("DOMContentLoaded", function () {
   if (checkoutButton) {
     checkoutButton.addEventListener("click", () => {
       if (!window.cart.length) {
-        return alert("Tu carrito está vacío.");
+        return showNotification("Carrito vacío", "Tu carrito está vacío.");
       }
       window.location.href = "checkout.html";
     });
+  }
+
+  // Gestión del modal de confirmación
+  const confirmationModal = document.getElementById("confirmation-modal");
+  const confirmButton = document.getElementById("confirm-order");
+  const cancelButton = document.getElementById("cancel-order");
+  let whatsappURL = "";
+
+  // Cerrar modal al hacer clic en Cancelar
+  if (cancelButton) {
+    cancelButton.addEventListener("click", () => {
+      confirmationModal.classList.remove("active");
+    });
+  }
+
+  // Continuar a WhatsApp al hacer clic en Confirmar
+  if (confirmButton) {
+    confirmButton.addEventListener("click", () => {
+      if (whatsappURL) {
+        window.location.href = whatsappURL;
+      }
+    });
+  }
+
+  // También cerrar modal al hacer clic fuera
+  if (confirmationModal) {
+    confirmationModal.addEventListener("click", function (e) {
+      if (e.target === this) {
+        confirmationModal.classList.remove("active");
+      }
+    });
+  }
+
+  // Función para mostrar el modal de confirmación con los datos del pedido
+  function showConfirmationModal(formData, orderSummary) {
+    if (!confirmationModal) return;
+
+    const itemsContainer = document.getElementById("confirmation-items");
+    const subtotalElement = document.getElementById("confirmation-subtotal");
+    const shippingContainer = document.getElementById(
+      "confirmation-shipping-container"
+    );
+    const shippingElement = document.getElementById("confirmation-shipping");
+    const totalElement = document.getElementById("confirmation-total");
+    const customerDataElement = document.getElementById(
+      "confirmation-customer-data"
+    );
+
+    // Mostrar items del carrito
+    itemsContainer.innerHTML = window.cart
+      .map(
+        (item) => `
+      <div class="flex justify-between">
+        <span>${item.name} × ${item.qty}</span>
+        <span>$${(item.price * item.qty).toFixed(2)}</span>
+      </div>
+    `
+      )
+      .join("");
+
+    // Mostrar costos
+    subtotalElement.textContent = `$${orderSummary.subtotal.toFixed(2)}`;
+
+    if (orderSummary.shipping > 0) {
+      shippingContainer.classList.remove("hidden");
+      shippingElement.textContent = `$${orderSummary.shipping.toFixed(2)}`;
+    } else {
+      shippingContainer.classList.add("hidden");
+    }
+
+    totalElement.textContent = `$${orderSummary.total.toFixed(2)}`;
+
+    // Mostrar datos del cliente
+    let customerHTML = `
+      <div><strong>Nombre:</strong> ${formData.name}</div>
+      <div><strong>Teléfono:</strong> ${formData.phone}</div>
+      <div><strong>Método de entrega:</strong> ${
+        formData.deliveryMethod === "pickup"
+          ? "Recoger en tienda"
+          : "Envío a domicilio"
+      }</div>
+    `;
+
+    if (formData.address) {
+      customerHTML += `<div><strong>Dirección:</strong> ${formData.address}</div>`;
+    }
+
+    if (formData.notes) {
+      customerHTML += `<div class="mt-2"><strong>Notas adicionales:</strong><br>${formData.notes}</div>`;
+    }
+
+    customerDataElement.innerHTML = customerHTML;
+
+    // Mostrar el modal
+    confirmationModal.classList.add("active");
   }
 
   // Manejo del formulario de checkout
   const checkoutForm = document.getElementById("checkout-form");
   if (checkoutForm) {
     console.log("Formulario de checkout encontrado:", checkoutForm);
-    
+
     // Mostrar/ocultar dirección según método de entrega
     const deliveryRadios = document.querySelectorAll('input[name="delivery"]');
     const addressContainer = document.getElementById("address-container");
@@ -92,7 +231,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Validar que el carrito no esté vacío
       if (!window.cart || window.cart.length === 0) {
-        alert("Tu carrito está vacío. Agrega productos antes de continuar.");
+        showNotification(
+          "Error",
+          "Tu carrito está vacío. Agrega productos antes de continuar."
+        );
         return;
       }
 
@@ -100,10 +242,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = {
         name: document.getElementById("name").value,
         phone: document.getElementById("phone").value,
-        deliveryMethod: document.querySelector('input[name="delivery"]:checked')?.value || "pickup",
+        deliveryMethod:
+          document.querySelector('input[name="delivery"]:checked')?.value ||
+          "pickup",
         notes: document.getElementById("notes").value,
       };
-      
+
       console.log("Datos del formulario:", formData);
 
       // Agregar dirección si es envío a domicilio
@@ -125,7 +269,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const lines = window.cart.map(
           (i) => `- ${i.name} ×${i.qty} ($${i.price * i.qty})`
         );
-        const subtotal = window.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const subtotal = window.cart.reduce(
+          (sum, i) => sum + i.price * i.qty,
+          0
+        );
         const shipping = formData.deliveryMethod === "delivery" ? 50 : 0;
         const total = subtotal + shipping;
 
@@ -155,15 +302,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("Mensaje preparado:", text);
 
-        // Enviar a WhatsApp (número actualizado)
+        // Preparar URL de WhatsApp pero no redirigir aún
         const whatsappNumber = "58766375"; // Número actualizado
-        const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
-        console.log("Redirigiendo a:", whatsappURL);
-        
-        window.location.href = whatsappURL;
+        whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+          text
+        )}`;
+        console.log("URL preparada:", whatsappURL);
+
+        // Mostrar modal de confirmación en lugar de redirigir directamente
+        showConfirmationModal(formData, { subtotal, shipping, total });
       } catch (error) {
         console.error("Error al procesar el formulario:", error);
-        alert("Hubo un error al procesar tu pedido. Por favor, intenta de nuevo.");
+        showNotification(
+          "Error",
+          "Hubo un error al procesar tu pedido. Por favor, intenta de nuevo."
+        );
       }
     });
 
@@ -225,6 +378,10 @@ document.addEventListener("DOMContentLoaded", function () {
         renderCartItems();
         updateCartSummary();
         updateCartCount();
+        showNotification(
+          "Producto eliminado",
+          "El producto ha sido eliminado de tu carrito."
+        );
       });
     });
   }

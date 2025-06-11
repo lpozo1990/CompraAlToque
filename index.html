@@ -7,7 +7,7 @@
 
     <!-- Tailwind CSS desde CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Estilos personalizados para notificaciones y mini-carrito -->
     <style>
       .notification {
@@ -45,7 +45,7 @@
         background-color: #ef6c00;
         transform-origin: left;
       }
-      
+
       /* Mini-cart styles */
       .mini-cart {
         position: absolute;
@@ -65,24 +65,24 @@
         visibility: hidden;
         transition: transform 0.2s ease, opacity 0.2s ease;
       }
-      
+
       .mini-cart.show {
         transform: scale(1);
         opacity: 1;
         visibility: visible;
       }
-      
+
       .mini-cart-item {
         display: flex;
         align-items: center;
         padding: 8px 0;
         border-bottom: 1px solid #f2f2f2;
       }
-      
+
       .mini-cart-item:last-child {
         border-bottom: none;
       }
-      
+
       .mini-cart-image {
         width: 50px;
         height: 50px;
@@ -90,21 +90,21 @@
         border-radius: 4px;
         margin-right: 12px;
       }
-      
+
       .mini-cart-details {
         flex-grow: 1;
       }
-      
+
       .mini-cart-name {
         font-weight: 500;
         margin-bottom: 2px;
       }
-      
+
       .mini-cart-price {
         color: #666;
         font-size: 0.875rem;
       }
-      
+
       .cart-wrapper {
         position: relative;
       }
@@ -146,7 +146,11 @@
         <!-- Carrito + menú móvil -->
         <div class="flex items-center space-x-4">
           <div class="cart-wrapper">
-            <button id="toggle-cart" class="relative text-xl focus:outline-none" title="Ver carrito">
+            <button
+              id="toggle-cart"
+              class="relative text-xl focus:outline-none"
+              title="Ver carrito"
+            >
               🛒
               <span
                 id="cart-count"
@@ -167,8 +171,8 @@
                 <span>Total:</span>
                 <span id="mini-cart-total">$0.00</span>
               </div>
-              <a 
-                href="checkout.html" 
+              <a
+                href="checkout.html"
                 class="block text-center bg-orange-500 text-white py-2 px-4 rounded mt-4 hover:bg-orange-600 transition"
                 id="checkout-mini-btn"
               >
@@ -240,19 +244,22 @@
         if (mobileBtn && mobileMenu) {
           mobileBtn.onclick = () => mobileMenu.classList.toggle("hidden");
         }
-        
+
         // Toggle mini-carrito
         const toggleCartBtn = document.getElementById("toggle-cart");
         const miniCart = document.getElementById("mini-cart");
         if (toggleCartBtn && miniCart) {
-          toggleCartBtn.addEventListener('click', () => {
-            miniCart.classList.toggle('show');
+          toggleCartBtn.addEventListener("click", () => {
+            miniCart.classList.toggle("show");
           });
-          
+
           // Cerrar el carrito cuando se hace clic fuera
-          document.addEventListener('click', (e) => {
-            if (!toggleCartBtn.contains(e.target) && !miniCart.contains(e.target)) {
-              miniCart.classList.remove('show');
+          document.addEventListener("click", (e) => {
+            if (
+              !toggleCartBtn.contains(e.target) &&
+              !miniCart.contains(e.target)
+            ) {
+              miniCart.classList.remove("show");
             }
           });
         }

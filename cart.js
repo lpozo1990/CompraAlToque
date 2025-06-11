@@ -8,36 +8,36 @@
 
   // Sistema de notificaciones elegantes
   function showNotification(title, message, duration = 3000) {
-    const container = document.getElementById('notifications-container');
+    const container = document.getElementById("notifications-container");
     if (!container) return;
-    
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    
+
+    const notification = document.createElement("div");
+    notification.className = "notification";
+
     const notificationHTML = `
       <div class="notification-title">${title}</div>
       <div class="notification-message">${message}</div>
       <div class="notification-progress"></div>
     `;
-    
+
     notification.innerHTML = notificationHTML;
     container.appendChild(notification);
-    
+
     // Animar barra de progreso
-    const progress = notification.querySelector('.notification-progress');
-    
+    const progress = notification.querySelector(".notification-progress");
+
     // Mostrar la notificación después de un pequeño delay
     setTimeout(() => {
-      notification.classList.add('show');
-      
+      notification.classList.add("show");
+
       // Animar la barra de progreso
-      progress.style.transition = `transform ${duration/1000}s linear`;
-      progress.style.transform = 'scaleX(0)';
+      progress.style.transition = `transform ${duration / 1000}s linear`;
+      progress.style.transform = "scaleX(0)";
     }, 10);
-    
+
     // Eliminar la notificación después del tiempo especificado
     setTimeout(() => {
-      notification.classList.remove('show');
+      notification.classList.remove("show");
       setTimeout(() => {
         notification.remove();
       }, 300); // Esperar a que termine la transición
@@ -49,36 +49,42 @@
     if (!countElem) return;
     countElem.textContent = window.cart.reduce((sum, i) => sum + i.qty, 0);
   }
-  
+
   // Actualizar el mini-carrito
   function updateMiniCart() {
     const itemsContainer = document.getElementById("mini-cart-items");
     const emptyMessage = document.getElementById("mini-cart-empty");
     const totalElement = document.getElementById("mini-cart-total");
     const checkoutButton = document.getElementById("checkout-mini-btn");
-    
-    if (!itemsContainer || !emptyMessage || !totalElement || !checkoutButton) return;
-    
+
+    if (!itemsContainer || !emptyMessage || !totalElement || !checkoutButton)
+      return;
+
     if (window.cart.length === 0) {
-      itemsContainer.innerHTML = '';
-      emptyMessage.classList.remove('hidden');
-      checkoutButton.classList.add('opacity-50', 'cursor-not-allowed');
-      checkoutButton.setAttribute('disabled', 'true');
-      totalElement.textContent = '$0.00';
+      itemsContainer.innerHTML = "";
+      emptyMessage.classList.remove("hidden");
+      checkoutButton.classList.add("opacity-50", "cursor-not-allowed");
+      checkoutButton.setAttribute("disabled", "true");
+      totalElement.textContent = "$0.00";
       return;
     }
-    
+
     // Ocultar mensaje de vacío y activar botón de checkout
-    emptyMessage.classList.add('hidden');
-    checkoutButton.classList.remove('opacity-50', 'cursor-not-allowed');
-    checkoutButton.removeAttribute('disabled');
-    
+    emptyMessage.classList.add("hidden");
+    checkoutButton.classList.remove("opacity-50", "cursor-not-allowed");
+    checkoutButton.removeAttribute("disabled");
+
     // Calcular total
-    const total = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const total = window.cart.reduce(
+      (sum, item) => sum + item.price * item.qty,
+      0
+    );
     totalElement.textContent = `$${total.toFixed(2)}`;
-    
+
     // Renderizar items
-    itemsContainer.innerHTML = window.cart.map(item => `
+    itemsContainer.innerHTML = window.cart
+      .map(
+        (item) => `
       <div class="mini-cart-item" data-id="${item.id}">
         <img src="${item.image}" alt="${item.name}" class="mini-cart-image">
         <div class="mini-cart-details">
@@ -91,24 +97,29 @@
           </svg>
         </button>
       </div>
-    `).join('');
-    
+    `
+      )
+      .join("");
+
     // Agregar eventos para eliminar productos
-    document.querySelectorAll('.mini-cart-remove').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const itemId = parseInt(this.closest('.mini-cart-item').dataset.id);
-        window.cart = window.cart.filter(item => item.id !== itemId);
-        localStorage.setItem('cart', JSON.stringify(window.cart));
+    document.querySelectorAll(".mini-cart-remove").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const itemId = parseInt(this.closest(".mini-cart-item").dataset.id);
+        window.cart = window.cart.filter((item) => item.id !== itemId);
+        localStorage.setItem("cart", JSON.stringify(window.cart));
         updateMiniCart();
         updateCartCount();
-        
+
         // Si estamos en la página de checkout, actualizar también esos elementos
-        if (document.getElementById('cart-items')) {
+        if (document.getElementById("cart-items")) {
           renderCartItems();
           updateCartSummary();
         }
-        
-        showNotification('Producto eliminado', 'Se ha eliminado el producto de tu carrito.');
+
+        showNotification(
+          "Producto eliminado",
+          "Se ha eliminado el producto de tu carrito."
+        );
       });
     });
   }
@@ -178,11 +189,16 @@
         localStorage.setItem("cart", JSON.stringify(window.cart));
         updateCartCount();
         updateMiniCart();
-        
+
+        // Resetear la cantidad a 1 después de agregar al carrito
+        if (quantityInput) {
+          quantityInput.value = 1;
+        }
+
         // Usar la notificación elegante en lugar de alert
         const totalItems = window.cart.reduce((a, b) => a + b.qty, 0);
         showNotification(
-          '¡Producto añadido!',
+          "¡Producto añadido!",
           `${quantity} × ${prod.name} añadido al carrito.<br>Total en carrito: ${totalItems} items.`
         );
       });
