@@ -7,6 +7,83 @@
 
     <!-- Tailwind CSS desde CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Estilos para modal de confirmación -->
+    <style>
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0s 0.3s;
+      }
+      
+      .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease, visibility 0s;
+      }
+      
+      .modal-content {
+        background-color: white;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+      }
+      
+      .modal-overlay.active .modal-content {
+        transform: scale(1);
+      }
+      
+      /* Estilo para notification en checkout */
+      .notification {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 15px 20px;
+        background-color: #fff;
+        border-left: 4px solid #ef6c00;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        z-index: 1000;
+        transform: translateX(120%);
+        transition: transform 0.3s ease-in-out;
+        max-width: 320px;
+      }
+      .notification.show {
+        transform: translateX(0);
+      }
+      .notification-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        font-size: 16px;
+      }
+      .notification-message {
+        font-size: 14px;
+        color: #666;
+      }
+      .notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        background-color: #ef6c00;
+        transform-origin: left;
+      }
+    </style>
   </head>
   <body class="bg-gray-50 text-gray-800">
     <!-- HEADER -->
@@ -37,6 +114,53 @@
         </div>
       </div>
     </header>
+
+    <!-- Contenedor para notificaciones -->
+    <div id="notifications-container"></div>
+
+    <!-- Modal de confirmación -->
+    <div id="confirmation-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="p-6">
+          <h3 class="text-xl font-bold mb-4">Confirmar pedido</h3>
+          <p class="mb-4">Estás a punto de enviar tu pedido a través de WhatsApp.</p>
+          
+          <div class="border rounded-lg p-4 mb-4 bg-gray-50">
+            <h4 class="font-semibold mb-2">Resumen del pedido:</h4>
+            <div id="confirmation-items" class="mb-3 space-y-2"></div>
+            
+            <div class="border-t pt-2 mt-2">
+              <div class="flex justify-between">
+                <span>Subtotal:</span>
+                <span id="confirmation-subtotal">$0.00</span>
+              </div>
+              <div class="flex justify-between" id="confirmation-shipping-container">
+                <span>Envío:</span>
+                <span id="confirmation-shipping">$0.00</span>
+              </div>
+              <div class="flex justify-between font-bold">
+                <span>Total:</span>
+                <span id="confirmation-total">$0.00</span>
+              </div>
+            </div>
+          </div>
+          
+          <h4 class="font-semibold mb-2">Datos de contacto:</h4>
+          <div class="border rounded-lg p-4 mb-4 bg-gray-50">
+            <div id="confirmation-customer-data"></div>
+          </div>
+          
+          <div class="flex flex-wrap justify-end gap-3 mt-6">
+            <button id="cancel-order" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-100">
+              Cancelar
+            </button>
+            <button id="confirm-order" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+              Confirmar en WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="max-w-6xl mx-auto px-4 py-8">

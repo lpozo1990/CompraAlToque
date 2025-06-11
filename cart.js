@@ -6,10 +6,111 @@
   let typingTimer; // Timer para el autocompletado
   const doneTypingInterval = 300; // Tiempo en ms para esperar después de que el usuario deje de escribir
 
+  // Sistema de notificaciones elegantes
+  function showNotification(title, message, duration = 3000) {
+    const container = document.getElementById('notifications-container');
+    if (!container) return;
+    
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    
+    const notificationHTML = `
+      <div class="notification-title">${title}</div>
+      <div class="notification-message">${message}</div>
+      <div class="notification-progress"></div>
+    `;
+    
+    notification.innerHTML = notificationHTML;
+    container.appendChild(notification);
+    
+    // Animar barra de progreso
+    const progress = notification.querySelector('.notification-progress');
+    
+    // Mostrar la notificación después de un pequeño delay
+    setTimeout(() => {
+      notification.classList.add('show');
+      
+      // Animar la barra de progreso
+      progress.style.transition = `transform ${duration/1000}s linear`;
+      progress.style.transform = 'scaleX(0)';
+    }, 10);
+    
+    // Eliminar la notificación después del tiempo especificado
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        notification.remove();
+      }, 300); // Esperar a que termine la transición
+    }, duration);
+  }
+
   function updateCartCount() {
     const countElem = document.getElementById("cart-count");
     if (!countElem) return;
     countElem.textContent = window.cart.reduce((sum, i) => sum + i.qty, 0);
+  }
+  
+  // Actualizar el mini-carrito
+  function updateMiniCart() {
+    const itemsContainer = document.getElementById("mini-cart-items");
+    const emptyMessage = document.getElementById("mini-cart-empty");
+    const totalElement = document.getElementById("mini-cart-total");
+    const checkoutButton = document.getElementById("checkout-mini-btn");
+    
+    if (!itemsContainer || !emptyMessage || !totalElement || !checkoutButton) return;
+    
+    if (window.cart.length === 0) {
+      itemsContainer.innerHTML = '';
+      emptyMessage.classList.remove('hidden');
+      checkoutButton.classList.add('opacity-50', 'cursor-not-allowed');
+      checkoutButton.setAttribute('disabled', 'true');
+      totalElement.textContent = '$0.00';
+      return;
+    }
+    
+    // Ocultar mensaje de vacío y activar botón de checkout
+    emptyMessage.classList.add('hidden');
+    checkoutButton.classList.remove('opacity-50', 'cursor-not-allowed');
+    checkoutButton.removeAttribute('disabled');
+    
+    // Calcular total
+    const total = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    totalElement.textContent = `$${total.toFixed(2)}`;
+    
+    // Renderizar items
+    itemsContainer.innerHTML = window.cart.map(item => `
+      <div class="mini-cart-item" data-id="${item.id}">
+        <img src="${item.image}" alt="${item.name}" class="mini-cart-image">
+        <div class="mini-cart-details">
+          <div class="mini-cart-name">${item.name}</div>
+          <div class="mini-cart-price">$${item.price} × ${item.qty}</div>
+        </div>
+        <button class="mini-cart-remove text-gray-400 hover:text-red-500 ml-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    `).join('');
+    
+    // Agregar eventos para eliminar productos
+    document.querySelectorAll('.mini-cart-remove').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const itemId = parseInt(this.closest('.mini-cart-item').dataset.id);
+        window.cart = window.cart.filter(item => item.id !== itemId);
+        localStorage.setItem('cart', JSON.stringify(window.cart));
+        updateMiniCart();
+        updateCartCount();
+        
+        // Si estamos en la página de checkout, actualizar también esos elementos
+        if (document.getElementById('cart-items')) {
+          renderCartItems();
+          updateCartSummary();
+        }
+        
+        showNotification('Producto eliminado', 'Se ha eliminado el producto de tu carrito.');
+      });
+    });
   }
 
   // Renderiza los productos en la página
@@ -76,13 +177,13 @@
 
         localStorage.setItem("cart", JSON.stringify(window.cart));
         updateCartCount();
-        alert(
-          `Agregado: ${quantity} × ${
-            prod.name
-          }. Total en carrito: ${window.cart.reduce(
-            (a, b) => a + b.qty,
-            0
-          )} items.`
+        updateMiniCart();
+        
+        // Usar la notificación elegante en lugar de alert
+        const totalItems = window.cart.reduce((a, b) => a + b.qty, 0);
+        showNotification(
+          '¡Producto añadido!',
+          `${quantity} × ${prod.name} añadido al carrito.<br>Total en carrito: ${totalItems} items.`
         );
       });
     });
@@ -239,6 +340,7 @@
       filteredProducts = products;
       renderProducts(products);
       updateCartCount();
+      updateMiniCart(); // Inicializar mini-carrito
 
       // Configurar eventos para búsqueda y filtros
       setupFilterEvents();

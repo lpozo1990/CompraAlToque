@@ -7,6 +7,108 @@
 
     <!-- Tailwind CSS desde CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Estilos personalizados para notificaciones y mini-carrito -->
+    <style>
+      .notification {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 15px 20px;
+        background-color: #fff;
+        border-left: 4px solid #ef6c00;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        z-index: 1000;
+        transform: translateX(120%);
+        transition: transform 0.3s ease-in-out;
+        max-width: 320px;
+      }
+      .notification.show {
+        transform: translateX(0);
+      }
+      .notification-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        font-size: 16px;
+      }
+      .notification-message {
+        font-size: 14px;
+        color: #666;
+      }
+      .notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        background-color: #ef6c00;
+        transform-origin: left;
+      }
+      
+      /* Mini-cart styles */
+      .mini-cart {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 320px;
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        z-index: 100;
+        max-height: 400px;
+        overflow-y: auto;
+        transform-origin: top right;
+        transform: scale(0.95);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+      
+      .mini-cart.show {
+        transform: scale(1);
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .mini-cart-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f2f2f2;
+      }
+      
+      .mini-cart-item:last-child {
+        border-bottom: none;
+      }
+      
+      .mini-cart-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 12px;
+      }
+      
+      .mini-cart-details {
+        flex-grow: 1;
+      }
+      
+      .mini-cart-name {
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+      
+      .mini-cart-price {
+        color: #666;
+        font-size: 0.875rem;
+      }
+      
+      .cart-wrapper {
+        position: relative;
+      }
+    </style>
   </head>
   <body class="bg-gray-50 text-gray-800">
     <!-- HEADER -->
@@ -43,14 +145,37 @@
 
         <!-- Carrito + menú móvil -->
         <div class="flex items-center space-x-4">
-          <a href="checkout.html" class="relative text-xl" id="cart-icon">
-            🛒
-            <span
-              id="cart-count"
-              class="absolute -top-1 -right-2 bg-red-500 text-white rounded-full text-xs px-1"
-              >0</span
-            >
-          </a>
+          <div class="cart-wrapper">
+            <button id="toggle-cart" class="relative text-xl focus:outline-none" title="Ver carrito">
+              🛒
+              <span
+                id="cart-count"
+                class="absolute -top-1 -right-2 bg-red-500 text-white rounded-full text-xs px-1"
+                >0</span
+              >
+            </button>
+            <!-- Mini-carrito desplegable -->
+            <div id="mini-cart" class="mini-cart">
+              <h3 class="font-bold text-lg mb-3">Tu Carrito</h3>
+              <div id="mini-cart-items" class="divide-y divide-gray-100">
+                <!-- Los items se añaden dinámicamente aquí -->
+              </div>
+              <div id="mini-cart-empty" class="py-4 text-center text-gray-500">
+                Tu carrito está vacío
+              </div>
+              <div class="flex justify-between font-bold mt-4 pt-2 border-t">
+                <span>Total:</span>
+                <span id="mini-cart-total">$0.00</span>
+              </div>
+              <a 
+                href="checkout.html" 
+                class="block text-center bg-orange-500 text-white py-2 px-4 rounded mt-4 hover:bg-orange-600 transition"
+                id="checkout-mini-btn"
+              >
+                Finalizar Compra
+              </a>
+            </div>
+          </div>
           <button id="mobile-menu-btn" class="md:hidden text-2xl">☰</button>
         </div>
       </div>
@@ -60,6 +185,9 @@
         <a href="#" class="block px-4 py-2 hover:bg-gray-200">Categoría 3</a>
       </nav>
     </header>
+
+    <!-- Contenedor para notificaciones -->
+    <div id="notifications-container"></div>
 
     <!-- CATÁLOGO -->
     <main class="max-w-6xl mx-auto px-4 mt-8">
@@ -111,6 +239,22 @@
         const mobileMenu = document.getElementById("mobile-menu");
         if (mobileBtn && mobileMenu) {
           mobileBtn.onclick = () => mobileMenu.classList.toggle("hidden");
+        }
+        
+        // Toggle mini-carrito
+        const toggleCartBtn = document.getElementById("toggle-cart");
+        const miniCart = document.getElementById("mini-cart");
+        if (toggleCartBtn && miniCart) {
+          toggleCartBtn.addEventListener('click', () => {
+            miniCart.classList.toggle('show');
+          });
+          
+          // Cerrar el carrito cuando se hace clic fuera
+          document.addEventListener('click', (e) => {
+            if (!toggleCartBtn.contains(e.target) && !miniCart.contains(e.target)) {
+              miniCart.classList.remove('show');
+            }
+          });
         }
       });
     </script>
