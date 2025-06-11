@@ -63,19 +63,23 @@
       btn.addEventListener("click", () => {
         const prod = allProducts.find((x) => x.id == btn.dataset.id);
         if (!prod) return;
-        
+
         // Obtener la cantidad seleccionada
-        const quantityInput = document.querySelector(`.quantity-input[data-id="${btn.dataset.id}"]`);
+        const quantityInput = document.querySelector(
+          `.quantity-input[data-id="${btn.dataset.id}"]`
+        );
         const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
-        
+
         const item = window.cart.find((x) => x.id === prod.id);
         if (item) item.qty += quantity;
         else window.cart.push({ ...prod, qty: quantity });
-        
+
         localStorage.setItem("cart", JSON.stringify(window.cart));
         updateCartCount();
         alert(
-          `Agregado: ${quantity} × ${prod.name}. Total en carrito: ${window.cart.reduce(
+          `Agregado: ${quantity} × ${
+            prod.name
+          }. Total en carrito: ${window.cart.reduce(
             (a, b) => a + b.qty,
             0
           )} items.`
@@ -83,29 +87,31 @@
       });
     });
   }
-  
+
   // Adjunta los eventos a los botones de incremento/decremento de cantidad
   function attachQuantityEvents() {
     // Manejar clicks en los botones + y -
     document.querySelectorAll(".quantity-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const productId = btn.dataset.id;
-        const input = document.querySelector(`.quantity-input[data-id="${productId}"]`);
-        
+        const input = document.querySelector(
+          `.quantity-input[data-id="${productId}"]`
+        );
+
         if (!input) return;
-        
+
         let value = parseInt(input.value) || 1;
-        
+
         if (btn.classList.contains("decrease")) {
           value = Math.max(1, value - 1);
         } else if (btn.classList.contains("increase")) {
           value = Math.min(99, value + 1);
         }
-        
+
         input.value = value;
       });
     });
-    
+
     // Validar entrada manual en el input
     document.querySelectorAll(".quantity-input").forEach((input) => {
       input.addEventListener("change", () => {
